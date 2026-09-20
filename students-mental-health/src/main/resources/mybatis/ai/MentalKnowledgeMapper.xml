@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mentalhealth.project.system.ai.mapper.AiMentalKnowledgeMapper">
+
+    <select id="searchKnowledge" resultType="java.util.Map">
+        SELECT * FROM mental_knowledge
+        WHERE status = '0'
+        AND (
+            <foreach collection="keywordList" item="kw" separator=" OR ">
+                #{text} LIKE CONCAT('%', #{kw}, '%')
+            </foreach>
+        )
+        ORDER BY priority DESC
+        LIMIT 3
+    </select>
+
+    <select id="searchRiskWord" resultType="java.util.Map">
+        SELECT * FROM mental_risk_word
+        WHERE status = '0'
+        AND #{text} LIKE CONCAT('%', word, '%')
+        ORDER BY CASE level WHEN '高' THEN 1 WHEN '中' THEN 2 ELSE 3 END
+        LIMIT 1
+    </select>
+
+    <select id="selectAllKnowledge" resultType="java.util.Map">
+        SELECT * FROM mental_knowledge WHERE status = '0' ORDER BY priority DESC
+    </select>
+
+</mapper>

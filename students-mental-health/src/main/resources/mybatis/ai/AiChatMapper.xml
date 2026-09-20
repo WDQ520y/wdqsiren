@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mentalhealth.project.system.ai.mapper.AiChatMapper">
+
+    <resultMap id="AiChatMessageResult" type="com.mentalhealth.project.system.ai.domain.AiChatMessage">
+        <id     property="id"          column="id"/>
+        <result property="userId"     column="user_id"/>
+        <result property="role"       column="role"/>
+        <result property="content"    column="content"/>
+        <result property="emotion"    column="emotion"/>
+        <result property="crisisLevel" column="crisis_level"/>
+        <result property="createTime"  column="create_time"/>
+        <result property="userName"    column="user_name"/>
+    </resultMap>
+
+    <insert id="insertMessage" parameterType="com.mentalhealth.project.system.ai.domain.AiChatMessage">
+        INSERT INTO ai_chat_message (user_id, role, content, emotion, crisis_level, create_time)
+        VALUES (#{userId}, #{role}, #{content}, #{emotion}, #{crisisLevel}, NOW())
+    </insert>
+
+    <select id="selectRecentMessages" resultMap="AiChatMessageResult">
+        SELECT m.*, u.user_name FROM ai_chat_message m
+        LEFT JOIN sys_user u ON u.user_id = m.user_id
+        WHERE m.user_id = #{userId}
+        ORDER BY m.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectAllMessages" resultMap="AiChatMessageResult">
+        SELECT m.*, u.user_name FROM ai_chat_message m
+        LEFT JOIN sys_user u ON u.user_id = m.user_id
+        <where>
+            <if test="userId != null">AND m.user_id = #{userId}</if>
+            <if test="emotion != null and emotion != ''">AND m.emotion = #{emotion}</if>
+        </where>
+        ORDER BY m.id DESC
+        LIMIT 200
+    </select>
+
+    <select id="emotionStats" resultType="java.util.Map">
+        SELECT emotion as name, COUNT(*) as value
+        FROM ai_emotion_log
+        WHERE emotion IS NOT NULL AND emotion != ''
+        GROUP BY emotion
+        ORDER BY value DESC
+    </select>
+
+    <delete id="deleteByUserId">
+        DELETE FROM ai_chat_message WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

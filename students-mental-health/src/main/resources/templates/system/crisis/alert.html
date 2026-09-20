@@ -1,0 +1,115 @@
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:include="include :: header('危机告警管理')"/>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="ibox">
+    <div class="ibox-content">
+      <div class="row form-inline" id="toolbar" style="margin-bottom:15px;">
+        <div class="form-group">
+          <label>等级：</label>
+          <select id="search_level" class="form-control">
+            <option value="">全部</option>
+            <option value="HIGH">高危</option>
+            <option value="MEDIUM">中危</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-left:10px;">
+          <label>状态：</label>
+          <select id="search_reviewed" class="form-control">
+            <option value="">全部</option>
+            <option value="0">未查看</option>
+            <option value="1">已查看</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="$.table.search()" style="margin-left:10px;">
+          <i class="fa fa-search"></i> 搜索
+        </button>
+      </div>
+
+      <div class="row">
+        <table id="bootstrap-table">
+          <thead>
+          <tr>
+            <th data-field="id" data-width="60">ID</th>
+            <th data-field="userName" data-width="120">触发用户</th>
+            <th data-field="level" data-width="80"
+                data-formatter="levelFormatter">等级</th>
+            <th data-field="scene" data-width="80"
+                data-formatter="sceneFormatter">场景</th>
+            <th data-field="actionTaken" data-width="100"
+                data-formatter="actionFormatter">处置</th>
+            <th data-field="createTime" data-width="160">触发时间</th>
+            <th data-field="reviewed" data-width="80"
+                data-formatter="reviewedFormatter">状态</th>
+            <th data-field="operate" data-formatter="operateFormatter">操作</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script>
+var prefix = "/system/crisis";
+
+$(function() {
+    var options = {
+        url: prefix + "/list",
+        createUrl: "",
+        modalName: "危机告警",
+        columns: [
+            {field: 'id', title: 'ID'},
+            {field: 'userName', title: '触发用户'},
+            {field: 'level', title: '等级', formatter: function(v){
+                if(v === 'HIGH') return '<span class="label label-danger">高危</span>';
+                return '<span class="label label-warning">中危</span>';
+            }},
+            {field: 'scene', title: '场景', formatter: function(v){
+                return v === 'POST' ? '帖子' : '评论';
+            }},
+            {field: 'actionTaken', title: '处置', formatter: function(v){
+                if(v === 'BLOCKED') return '已拦截';
+                if(v === 'WARNED') return '弱提示';
+                return '频率抑制';
+            }},
+            {field: 'createTime', title: '触发时间'},
+            {field: 'reviewed', title: '状态', formatter: function(v){
+                return v == 1 ? '<span class="label label-success">已查看</span>' : '<span class="label label-default">未查看</span>';
+            }},
+            {field: 'operate', title: '操作', formatter: function(v, row){
+                var html = '';
+                if(row.reviewed == 0) {
+                    html += '<a class="btn btn-success btn-xs" onclick="review(' + row.id + ')">标记已查看</a> ';
+                }
+                html += '<a class="btn btn-primary btn-xs" onclick="sendSupport(' + row.userId + ')">发送援助消息</a>';
+                return html;
+            }}
+        ]
+    };
+    $.table.init(options);
+});
+
+function review(id) {
+    $.operate.post(prefix + "/review/" + id);
+}
+
+function sendSupport(userId) {
+    var content = prompt('输入援助消息内容：', '同学你好，我们注意到你最近的状态有些波动，如果你愿意，可以随时来心理咨询中心聊聊，这里是免费且保密的。');
+    if (!content) return;
+    $.ajax({
+        url: prefix + "/sendSupport/" + userId,
+        type: "post",
+        data: {content: content},
+        success: function(res) {
+            $.modal.alertSuccess(res.msg);
+        }
+    });
+}
+</script>
+</body>
+</html>

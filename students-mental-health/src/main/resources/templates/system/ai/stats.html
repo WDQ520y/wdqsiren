@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<th:block th:include="include :: header('情绪统计')"/>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox">
+        <div class="ibox-title"><h5>用户情绪分布统计</h5></div>
+        <div class="ibox-content">
+            <table class="table table-striped">
+                <thead><tr><th>情绪类型</th><th>次数</th><th>占比</th></tr></thead>
+                <tbody>
+                    <tr th:each="s, iter : ${stats}">
+                        <td th:text="${s.name}"></td>
+                        <td th:text="${s.value}"></td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" th:style="'width:' + (${iter.index == 0 ? 100 : s.value * 100 / stats[0].value}) + '%'"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(stats)}"><td colspan="3" class="text-center">暂无数据</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+</body>
+</html>

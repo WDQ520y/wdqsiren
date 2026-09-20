@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<th:block th:include="include :: header('AI知识库管理')"/>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox">
+        <div class="ibox-title"><h5>AI知识库管理</h5></div>
+        <div class="ibox-content">
+            <div class="row form-inline mb-sm">
+                <div class="form-group">
+                    <input class="form-control" id="searchTitle" placeholder="标题">
+                </div>
+                <div class="form-group">
+                    <select class="form-control" id="searchCategory">
+                        <option value="">全部分类</option>
+                        <option>情绪管理</option><option>CBT</option><option>正念</option>
+                        <option>压力应对</option><option>危机干预</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="$.operate.search()">搜索</button>
+                <button class="btn btn-success" onclick="openAdd()">新增知识</button>
+            </div>
+            <table class="table table-striped table-bordered" id="dataTable">
+                <thead><tr>
+                    <th>ID</th><th>标题</th><th>分类</th><th>关键词</th><th>状态</th><th>操作</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><h4 class="modal-title">编辑知识</h4></div>
+            <div class="modal-body">
+                <input type="hidden" id="kId">
+                <div class="form-group"><label>标题</label><input class="form-control" id="kTitle"></div>
+                <div class="form-group"><label>分类</label>
+                    <select class="form-control" id="kCategory">
+                        <option>情绪管理</option><option>CBT</option><option>正念</option>
+                        <option>压力应对</option><option>危机干预</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>关键词(逗号分隔)</label><input class="form-control" id="kKeywords"></div>
+                <div class="form-group"><label>内容</label><textarea class="form-control" id="kContent" rows="5"></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal">取消</button>
+                <button class="btn btn-primary" onclick="saveKnowledge()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script>
+var prefix = ctx + "system/ai/knowledge";
+function loadTable() {
+    $.post(prefix + "/list", {title: $('#searchTitle').val(), category: $('#searchCategory').val()}, function(res) {
+        var html = '';
+        $.each(res.rows, function(i, k) {
+            html += '<tr><td>'+k.id+'</td><td>'+k.title+'</td><td>'+k.category+'</td><td>'+k.keywords+'</td><td>'+(k.status=='0'?'启用':'停用')+'</td>';
+            html += '<td><button class="btn btn-xs btn-primary" onclick="openEdit('+k.id+',\''+k.title+'\',\''+k.category+'\',\''+k.keywords+'\')">编辑</button> ';
+            html += '<button class="btn btn-xs btn-danger" onclick="delKnowledge('+k.id+')">删除</button></td></tr>';
+        });
+        $('#dataTable tbody').html(html);
+    });
+}
+function openAdd() {
+    $('#kId').val(''); $('#kTitle').val(''); $('#kKeywords').val(''); $('#kContent').val('');
+    $('#editModal').modal('show');
+}
+function openEdit(id, title, category, keywords) {
+    $('#kId').val(id); $('#kTitle').val(title); $('#kCategory').val(category); $('#kKeywords').val(keywords);
+    $.post(prefix + '/list', {}, function(res){
+        $.each(res.rows, function(i,k){
+            if(k.id==id){ $('#kContent').val(k.content); }
+        });
+    });
+    $('#editModal').modal('show');
+}
+function saveKnowledge() {
+    var data = {id: $('#kId').val(), title: $('#kTitle').val(), category: $('#kCategory').val(), keywords: $('#kKeywords').val(), content: $('#kContent').val(), status: '0'};
+    $.post(prefix + '/add', data, function(){ $('#editModal').modal('hide'); loadTable(); });
+}
+function delKnowledge(id) {
+    if(!confirm('确定删除？')) return;
+    $.post(prefix + '/delete/' + id, function(){ loadTable(); });
+}
+loadTable();
+</script>
+</body>
+</html>

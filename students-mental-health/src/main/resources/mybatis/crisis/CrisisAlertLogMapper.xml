@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mentalhealth.project.system.crisis.mapper.CrisisAlertLogMapper">
+
+    <resultMap type="CrisisAlertLog" id="CrisisAlertLogResult">
+        <id     property="id"          column="id"          />
+        <result property="userId"      column="user_id"     />
+        <result property="level"       column="level"       />
+        <result property="keywordId"   column="keyword_id"  />
+        <result property="scene"       column="scene"       />
+        <result property="refId"       column="ref_id"      />
+        <result property="actionTaken" column="action_taken"/>
+        <result property="reviewed"    column="reviewed"    />
+        <result property="createTime"  column="create_time" />
+        <result property="userName"    column="user_name"   />
+    </resultMap>
+
+    <insert id="insertAlertLog" parameterType="CrisisAlertLog" useGeneratedKeys="true" keyProperty="id">
+        insert into crisis_alert_log
+        (user_id, level, keyword_id, scene, ref_id, action_taken, reviewed, create_time)
+        values
+        (#{userId}, #{level}, #{keywordId}, #{scene}, #{refId}, #{actionTaken}, 0, NOW())
+    </insert>
+
+    <select id="countRecentHits" resultType="int">
+        select count(*) from crisis_alert_log
+        where user_id = #{userId}
+          and create_time >= DATE_SUB(NOW(), INTERVAL #{minutes} MINUTE)
+    </select>
+
+    <select id="selectAlertList" parameterType="CrisisAlertLog" resultMap="CrisisAlertLogResult">
+        select l.id, l.user_id, l.level, l.keyword_id, l.scene, l.ref_id,
+               l.action_taken, l.reviewed, l.create_time,
+               u.user_name
+        from crisis_alert_log l
+        left join sys_user u on u.user_id = l.user_id
+        <where>
+            <if test="level != null and level != ''">and l.level = #{level}</if>
+            <if test="reviewed != null">and l.reviewed = #{reviewed}</if>
+        </where>
+        order by l.create_time desc
+    </select>
+
+    <update id="markReviewed" parameterType="Long">
+        update crisis_alert_log set reviewed = 1 where id = #{id}
+    </update>
+
+</mapper>

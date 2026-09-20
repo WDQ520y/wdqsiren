@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mentalhealth.project.system.crisis.mapper.CrisisKeywordMapper">
+
+    <resultMap type="CrisisKeyword" id="CrisisKeywordResult">
+        <id     property="id"        column="id"        />
+        <result property="keyword"   column="keyword"   />
+        <result property="level"     column="level"     />
+        <result property="matchMode" column="match_mode"/>
+        <result property="action"    column="action"    />
+        <result property="category"  column="category"  />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectVo">
+        select id, keyword, level, match_mode, action, category, status
+        from crisis_keyword
+    </sql>
+
+    <select id="selectAllActiveKeywords" resultMap="CrisisKeywordResult">
+        <include refid="selectVo"/>
+        where status = '0'
+    </select>
+
+    <select id="selectKeywordById" parameterType="Long" resultMap="CrisisKeywordResult">
+        <include refid="selectVo"/>
+        where id = #{id}
+    </select>
+
+</mapper>
