@@ -1,82 +1,89 @@
-# 系统使用说明
-- 该系统是在若以框架的基础上进行的开发，前端使用的是Thymeleaf + BootStrap进行开发
-- 视频效果演示地址：<a href ="https://b23.tv/p8g5ZZy" >B站视频传送门</a>
-## 环境配置说明
-- JDK 1.8
-- Mysql 5.7 
-- Maven 3.3.9
-- IDEA 2020
+# 学生心理健康管理系统
 
-## 项目基本介绍
-数据库：数据库由于一些个人原因 未公布在Github 上。我的个人微信公众号：乡下小哥编程。数据库下载地址在这里：<a href="https://mbd.pub/o/bread/ZJuZm5ty">数据库传送门</a>。微信公众号 回复 学生健康管理系统数据库， 就可以自动获取数据库脚本的相关链接，一定要 回复 学生健康管理系统数据库。错一个字 都无法自动获取到的。
-连接数据库的账号密码
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/265fd465-b398-43e5-85e8-ae7a249048cf)
+基于 RuoYi 二次开发的学生心理健康管理平台，集心理测评、知识科普、社区交流、音乐疗愈、AI心理助手、危机识别于一体。
 
-maven的配置
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/73a8e305-d733-4a28-81e2-ed0a1c8fa49d)
+## 技术栈
 
+| 层级 | 技术 |
+|------|------|
+| 后端 | Spring Boot 2.2 + MyBatis + Shiro + Quartz |
+| 前端 | Thymeleaf + Bootstrap + jQuery + Layer |
+| 数据库 | MySQL 8.0 |
+| 缓存 | EhCache |
+| 构建 | Maven |
+| JDK | 1.8 |
 
-# 功能目录
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/5c00da4e-6702-4a34-88aa-fea8260e4d11)
+## 核心功能
 
+### 前台（学生端）
+- **首页**：系统介绍、心理知识推荐、公告通知
+- **心理知识**：分类浏览心理健康科普文章，支持收藏
+- **心理社区**：发帖、评论、点赞，心理互助交流
+- **心理音乐**：在线播放疗愈音乐
+- **心理测评**：多量表在线测评（SCL-90、SAS、SDS等），自动生成测评报告
+- **AI心理助手**：多轮对话，情绪识别，知识库RAG检索，危机分级预警
+- **个人中心**：我的测评、我的帖子、我的收藏、个人信息修改
 
-# 前台效果展示
-## 登录页面
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/37c6a71b-c3dc-4c56-9a01-5d7f190b0dda)
+### 后台（管理员端）
+- **学生管理**：学生信息、班级、专业管理
+- **测评管理**：量表、题目、因子、公式配置，测评结果查看
+- **知识管理**：心理知识文章增删改查，审核管理
+- **社区管理**：帖子管理、评论管理、举报处理
+- **音乐管理**：音乐上传、分类管理
+- **公告管理**：系统公告发布
+- **危机识别**：敏感词库管理、告警日志、人工介入
+- **AI管理**：知识库管理、对话记录、情绪统计
+- **系统管理**：用户、角色、菜单、部门、字典、日志等RuoYi标准功能
 
+## 特色功能
 
-## 注册页面
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/2187c9f0-ddf4-4c99-b61d-8fc575ce3481)
+### 危机识别与援助弹窗
+- 服务端敏感词检测（内存缓存词表，打分制）
+- 高危词强拦截 + 弹出心理援助提示框
+- 中危词弱提示，内容正常发布
+- 上下文消歧（新闻/论文/小说等场景降权）
+- 频次控制（10分钟内最多弹3次，避免轰炸）
+- 后台告警列表，支持一键发送援助消息
 
+### AI心理助手
+- 多轮对话，保留最近10轮上下文
+- 情绪识别（焦虑/抑郁/愤怒/平静/压力等）
+- 知识库关键词检索，专业回答
+- 危机分级预警，高风险自动弹出援助热线
+- 安全免责声明，不输出自伤方法
 
-## 首页
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/e5478da9-e2a7-40b6-830d-6186a31efb93)
+## 项目结构
 
-## 心理知识
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/24867f75-a974-440b-8a4a-284c389c4031)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/756b4442-2078-42c2-ac53-8e56167889a2)
+```
+├── students-mental-health/          # 主项目
+│   ├── src/main/java/com/mentalhealth/
+│   │   ├── common/                  # 工具类、常量、异常
+│   │   ├── framework/               # 配置、Shiro、AOP、数据源
+│   │   └── project/
+│   │       ├── system/
+│   │       │   ├── ai/              # AI心理助手模块
+│   │       │   ├── crisis/         # 危机识别模块
+│   │       │   ├── student/        # 学生管理
+│   │       │   ├── scale/         # 心理测评
+│   │       │   ├── knowledge/     # 心理知识
+│   │       │   ├── posts/         # 社区帖子
+│   │       │   ├── music/         # 心理音乐
+│   │       │   └── ...            # 其他业务模块
+│   │       ├── monitor/          # 系统监控
+│   │       └── tool/             # 代码生成、Swagger
+│   └── src/main/resources/
+│       ├── templates/             # 页面模板
+│       ├── mybatis/               # Mapper XML
+│       └── static/                # 静态资源
+└── _db_setup/                     # 数据库脚本
+```
 
-## 心理社区
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/bd8da7b1-c5a7-42e6-a15d-1fa1c6482826)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/ec67a49f-ff84-42f5-9cb1-13620a849eb0)
+## 快速启动
 
-## 心理音乐
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/98a3e36b-c86e-4f51-8786-85e712225f19)
-
-## 心理测评表
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/db64a65a-0ce1-4397-9eb3-a2dd5fe294dc)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/1f4555b8-15ba-443e-bcb8-463fb4e102bd)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/79dfd2c0-5f4b-4072-a311-f586cfe93c19)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/fff6b3fd-5247-4c85-b97e-731191647db1)
-
-## 普通用户后台
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/91036b62-62b4-4bc4-8b6b-09895dba9817)
-
-
-# 后台效果展示
-## 用户信息
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/24bed4bd-229d-4e96-9499-0a95235cc91d)
-
-## 管理员后台（心理测评表管理）
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/c218a41b-61c4-4802-ad2f-d14b3fb211b0)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/7ac91120-eefb-418e-980d-9d39b1b4a5f6)
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/c59868b7-85a7-4398-ac19-e12ff1ec25d5)
-
-## 管理员后台（心理健康知识管理）
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/06b8b5da-4c8c-44a2-b1cf-d11f8b484b30)
-
-
-## 管理员后台（心理社区管理）
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/83f06239-f06d-4cab-b330-6e2c7bba63fe)
-
-
-## 管理员后台（心理音乐管理）
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/57cdc180-4719-49ea-9290-c7ea08235085)
-
-
-## 管理员后台（心理公告管理）
-
-![image](https://github.com/zhengyuzh/Mental-health-management-system/assets/95670150/a505328a-501e-4cd6-bb0e-ac714f0342e8)
-
-
-
+1. 创建 MySQL 数据库 `mental_health`，导入 `_db_setup/` 下的SQL脚本
+2. 修改 `application-druid.yml` 中的数据库连接配置
+3. `mvn package -DskipTests` 打包
+4. `java -jar target/ruoyi.jar` 启动
+5. 访问 http://localhost:8080
+   - 管理员：admin / admin123
+   - 前台学生端：http://localhost:8080/system/user/toIndex
